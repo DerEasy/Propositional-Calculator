@@ -1,5 +1,5 @@
 # propcalc
-Full-fledged console application for calculating propositional calculus formulas. Can create truth tables, show steps to result, check for validity, etc.
+Console application for calculating propositional calculus formulas. Can create truth tables, show steps to result, check for validity, etc.
 
 ## How to use
 You write a file (.txt, but any extension works except .pcl) containing proper syntax, then you call the executable in a console window and it does the rest for you.
