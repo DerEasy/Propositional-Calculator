@@ -33,6 +33,8 @@ The operator precedence is in that exact order.
 |-|-|
 |!|NOT gate/Negation/Inverter; inverts the value to the _right_ of it|
 
+Can negate variables, constants and brackets (must be placed left of the left bracket).
+
 
 |Brackets|
 |-|
@@ -60,6 +62,7 @@ By default, variables are sorted alphabetically when they are printed next to th
 
 ## Working example formulas
 Formulas may include as many spaces and line breaks as you want.
+
 `a and !(b or !c)`
 
 `!b`
