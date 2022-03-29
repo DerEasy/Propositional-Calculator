@@ -33,7 +33,7 @@ The operator precedence is in that exact order.
 |-|-|
 |!|NOT gate/Negation/Inverter; inverts the value to the _right_ of it|
 
-Can negate variables, constants and brackets (must be placed left of the left bracket).
+Can negate variables, constants and brackets (must be placed left of the left bracket). Adjacent ones negate each other.
 
 
 |Brackets|
@@ -75,6 +75,37 @@ Formulas may include as many spaces and line breaks as you want.
 
 `order b a; a or b`
 
+## What to expect
+Pretend we have a file logical.txt with following content:
+```
+order b a c;
 
+a and !(b or !c)
+```
+Now when we run:
+`propcalc logical.txt steps props`
 
+We get:
+```
+  0 = b or !c
+out = a and !0
 
+Valid: False
+Satisfiable: True
+Invalid: False
+
+[b a c]  a and !(b or !c)
+[0 0 0]  0
+[0 0 1]  0
+[0 1 0]  0
+[0 1 1]  1
+[1 0 0]  0
+[1 0 1]  0
+[1 1 0]  0
+[1 1 1]  0
+```
+
+As you can see, propcalc prints the steps, then the properties of the formula, then the truth table with the correct variable order. It also shows the formula it has just calculated. If you ran the program with a .pcl file, this makes it possible to see what is actually being calculated here.
+
+## Known bugs
+The program works well if you use the correct syntax. The syntax also isn't really that difficult and it allows for as much whitespace as you need. Nevertheless, I have yet to implement exceptions that catch incorrect syntax, like two variables/binary operators next to each other, negating a binary operator, leaving out brackets, passing a file that does not contain a formula, etc. Some of these problems will cause the program to crash, others will result in an infinite loop. None will just continue and pretend nothing happened (to my knowledge).
