@@ -17,28 +17,36 @@ propcalc also accepts .pcl files, which are its own compilations. They contain a
 |out     |Makes all print commands write to a .txt file. If your input file is called `prop.txt`, it will appear as `prop_out.txt`|
 
 ## Syntax
-Binary operators include:
-- and
-- nand
-- or
-- nor
-- xor
-- xnor
-- impl (material implication)
+|Binary operators|Explanation|
+|-|-|
+|and|AND gate|
+|nand|NAND gate|
+|or|OR gate|
+|nor|NOR gate|
+|xor|XOR gate|
+|xnor|XNOR gate|
+|impl|Material implication|
 
 The operator precedence is in that exact order.
 
-Unary operator:
-- ! (not/negation/inverter, inverts the value next to it)
+|Unary operator||
+|-|-|
+|!|NOT gate/Negation/Inverter; inverts the value to the _right_ of it|
 
-Brackets:
-- (
-- )
+
+|Brackets|
+|-|
+|(|
+|)|
+
+Can be used to change the precedence of operations or to make it easier to read the formula.
 
 |Constants|
 |-|
 |false|
 |true|
+
+Can be used to substitute a variable, does not change its value over the course of the program though.
 
 Variables can be denoted with following characters:
 - Lowercase English alphabet a-z
@@ -51,13 +59,14 @@ Variables can be of any character length you desire.
 By default, variables are sorted alphabetically when they are printed next to the truth table. You can change the order by making use of the order instruction anywhere in the file: `order c b a;`. The order instruction _must_ end with at least one semicolon. You cannot leave out any variables in the instruction. The variables must be separated with spaces.
 
 ## Working example formulas
+Formulas may include as many spaces and line breaks as you want.
 `a and !(b or !c)`
 
 `!b`
 
 `true`
 
-`(example impl !probablyWorks) xnor !false and u`
+`(example impl !probablyWorks) xnor !false and u123`
 
 `a or b`
 
