@@ -1,4 +1,3 @@
-using System.Text;
 using static propcalc.Compiler;
 using static propcalc.Logic;
 

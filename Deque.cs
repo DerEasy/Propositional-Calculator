@@ -7,17 +7,19 @@ public class Deque<T> {
         public T data;
         public Node prev, next;
 
-        public Node() {}
+        public Node() {
+            data = default!; prev = default!; next = default!;
+        }
         public Node(T d, Node p, Node n) {
             data = d; prev = p; next = n;
         }
     }
 
-    public DequeIterator iterator;
-    private Node head, tail;
+    public readonly DequeIterator iterator;
+    private readonly Node head, tail;
     private int size;
-    
-    private void Init() {
+
+    public Deque() {
         head = new Node();
         tail = new Node();
         head.next = tail;
@@ -26,13 +28,15 @@ public class Deque<T> {
         tail.next = tail;
         iterator = new DequeIterator(this);
     }
-
-    public Deque() {
-        Init();
-    }
     
     public Deque(IEnumerable<T> init) {
-        Init();
+        head = new Node();
+        tail = new Node();
+        head.next = tail;
+        head.prev = head;
+        tail.prev = head;
+        tail.next = tail;
+        iterator = new DequeIterator(this);
         foreach (var i in init)
             Append(i);
     }
@@ -153,7 +157,7 @@ public class Deque<T> {
     
     public class DequeIterator {
         private Node curr;
-        private Deque<T> deque;
+        private readonly Deque<T> deque;
         private int index = -1;
         
         public DequeIterator(Deque<T> deq) {

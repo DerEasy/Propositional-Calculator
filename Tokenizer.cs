@@ -11,18 +11,18 @@ public class Tokenizer {
     private const string regexReduceSpaces = " {2,}";
     
     
-    public static (Deque<string>, string[]) tokenize(string filename, out string raw) {
-        string str = File.ReadAllText(filename);
+    public static (Deque<string>, string[]) tokenize(string filename, ref string raw, bool isShell) {
+        string str = isShell ? raw : File.ReadAllText(filename);
         string[] metadata = extractExplicitOrder(str, filename);
-        
-        if (metadata.Length == 1)
+            
+        if (metadata.Length <= 1)
             metadata = extractImplicitOrder(str, filename);
         else str = str.Replace(
-                Regex.Matches(str, regexOrder)
-                    .Select(m => m.Value)
-                    .ToArray()[0]
-                    .ToString(),
-                ""); // Remove order statement from source code
+            Regex.Matches(str, regexOrder)
+                .Select(m => m.Value)
+                .ToArray()[0]
+                .ToString(),
+            ""); // Remove order statement from source code
         
         str = Regex.Replace(str, regexSpecialSpaces, " ");
         str = Regex.Replace(str, regexReduceSpaces, " ");

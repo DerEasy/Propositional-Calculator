@@ -1,53 +1,94 @@
 ﻿using propcalc;
 
-if (args.Length == 0) {
-    Console.WriteLine("Must specify file to open.");
-    Environment.Exit(1);
-}
 
-
+bool[] mode = new bool[7];
 const int no_table = 0;
 const int props = 1;
 const int compile = 2;
 const int steps = 3;
 const int output = 4;
+const int shell = 5;
+const int no_calc = 6;
 
-bool[] mode = new bool[5];
-for (int i = 1; i < args.Length; ++i) {
-    switch (args[i]) {
-    case "no_table": mode[no_table] = true; break;
-    case "props"   : mode[props]    = true; break;
-    case "compile" : mode[compile]  = true; break;
-    case "steps"   : mode[steps]    = true; break;
-    case "out"     : mode[output]   = true; break;
+bool fileIsCompiled = false;
+string rawCode = "";
+string extension;
+string filenoext;
+
+
+// Program execution
+getArguments();
+if (mode[shell] && onShell()) 
+    exitProgram(0);
+if (mode[output]) 
+    onOutput();
+if (onFile()) 
+    exitProgram(0);
+// On success end program
+
+
+
+void getArguments() {
+    if (args.Length == 0)
+        args = new[] {"shell"}; // Default execution path is shell
+    
+    extension = Path.GetExtension(args[0]);
+    filenoext = Path.GetFileNameWithoutExtension(args[0]);
+    
+    for (int i = 0; i < args.Length; ++i) {
+        switch (args[i]) {
+        case "no_table": mode[no_table] = true; break;
+        case "props"   : mode[props]    = true; break;
+        case "compile" : mode[compile]  = true; break;
+        case "steps"   : mode[steps]    = true; break;
+        case "out"     : mode[output]   = true; break;
+        case "shell"   : mode[shell]    = true; break;
+        case "no_calc" : mode[no_calc]  = true; break;
+        }
     }
 }
 
-bool isCompiled;
-string rawCode;
-string extension = Path.GetExtension(args[0]);
-string filenoext = Path.GetFileNameWithoutExtension(args[0]);
 
-if (mode[output]) {
+bool onShell() {
+    Console.WriteLine("Enter a formula:");
+    rawCode = Console.ReadLine() ?? string.Empty;
+    Console.WriteLine();
+
+    if (mode[output])
+        onOutput();
+    
+    parse();
+    return true;
+}
+
+
+void onOutput() {
     FileStream stream = new(filenoext + "_out.txt", FileMode.Create);
     StreamWriter writer = new(stream);
     writer.AutoFlush = false;
     Console.SetOut(writer);
 }
 
-switch (extension) {
-case ".pcl":
-    isCompiled = true;
-    interpret(args[0]);
-    break;
-default:
-    isCompiled = false;
-    parse();
-    break;
+
+bool onFile() {
+    switch (extension) {
+    case ".pcl":
+        fileIsCompiled = true;
+        interpret(args[0]);
+        break;
+    default:
+        fileIsCompiled = false;
+        parse();
+        break;
+    }
+    return true;
 }
 
+
 void parse() {
-    var (tokens, metadata) = Tokenizer.tokenize(args[0], out rawCode);
+    var (tokens, metadata) = Tokenizer.tokenize(args[0], ref rawCode, mode[shell]);
+    if (rawCode.Length == 0) // No code, exit program
+        exitProgram(3);
     var split = Splitter.splitBrackets(tokens);
     var (atoms, atomBools) = Atomizer.atomize(split);
     compileCode(atoms, atomBools, metadata);
@@ -81,14 +122,19 @@ void interpret(object interpretableObject) {
         interpreter = new Interpreter(compilation);
     else throw new Exception("Object cannot be interpreted.");
     
-    interpreter.interpret();
+    if (!mode[no_calc])
+        interpreter.interpret();
 
-    if (isCompiled && mode[steps])
+    if (fileIsCompiled && mode[steps])
         Steps.showSteps(args[0]);
-    if (mode[props])
+    if (mode[props] && !mode[no_calc])
         interpreter.properties();
-    if (!mode[no_table])
+    if (!mode[no_table] && !mode[no_calc])
         interpreter.table();
 }
 
-Console.Out.Flush();
+
+void exitProgram(int exitCode) {
+    Console.Out.Flush();
+    Environment.Exit(exitCode);
+}
