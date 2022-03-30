@@ -1,5 +1,5 @@
 # pcl / propcalc / Propositional Calculator
-Console application for calculating propositional calculus formulas. Can create truth tables, show steps to result, check for validity, etc. Programmed in C#, standalone .exe file.
+Console application for calculating propositional calculus formulas. Can create truth tables, show steps to result, check for validity, etc. Programmed in C#.
 
 ## How to use
 ### Running pcl with a file
