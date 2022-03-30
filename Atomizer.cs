@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using static propcalc.Syntax;
 
 namespace propcalc;
@@ -24,7 +23,8 @@ public static class Atomizer {
                 neg.Append(neg.ReadFirst()); // Duplicate negation value
             }
             
-            for (int j = 0; j < neg.Size(); ++j) {
+            int operationAmount = neg.Size() - 1;
+            for (int j = 0; j < operationAmount; ++j) {
                 var pos = positionOfSignificantOp(whole);
                 var (atom, atomBool) = cutNextOperation(whole, neg, pos, ref intermediate);
                 atomized.Append(atom);
