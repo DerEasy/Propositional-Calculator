@@ -18,11 +18,13 @@ string filenoext;
 
 // Program execution
 getArguments();
-if (mode[shell] && onShell()) 
+if (mode[shell] && onShell())
     exitProgram(0);
-if (mode[output]) 
-    onOutput();
-if (onFile()) 
+if (mode[output])
+    onFileOutput();
+else 
+    onConsoleOutput();
+if (onFile())
     exitProgram(0);
 // On success end program
 
@@ -55,16 +57,25 @@ bool onShell() {
     Console.WriteLine();
 
     if (mode[output])
-        onOutput();
+        onFileOutput();
+    else
+        onConsoleOutput();
     
     parse();
     return true;
 }
 
 
-void onOutput() {
+void onFileOutput() {
     FileStream stream = new(filenoext + "_out.txt", FileMode.Create);
     StreamWriter writer = new(stream);
+    writer.AutoFlush = false;
+    Console.SetOut(writer);
+}
+
+
+void onConsoleOutput() {
+    StreamWriter writer = new(Console.OpenStandardOutput());
     writer.AutoFlush = false;
     Console.SetOut(writer);
 }
@@ -98,7 +109,7 @@ void parse() {
 void compileCode(
     Deque< Deque<string> > atoms, 
     Deque< (bool, bool) > atomBools,
-    string[] metadata) 
+    string[] metadata)
 {
     if (mode[steps])
         Steps.showSteps(atoms, atomBools);
@@ -123,14 +134,12 @@ void interpret(object interpretableObject) {
     else throw new Exception("Object cannot be interpreted.");
     
     if (!mode[no_calc])
-        interpreter.interpret();
+        interpreter.interpret(!mode[no_table], mode[props]);
 
     if (fileIsCompiled && mode[steps])
         Steps.showSteps(args[0]);
     if (mode[props] && !mode[no_calc])
         interpreter.properties();
-    if (!mode[no_table] && !mode[no_calc])
-        interpreter.table();
 }
 
 

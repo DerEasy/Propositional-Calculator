@@ -12,9 +12,15 @@ public static class Steps {
     
         for (int i = 0; i < atoms.Size(); ++i) {
             if (i < atoms.Size() - 1)
-                sb.Append($"{i,3} = ");
-            else sb.Append($"{"out",3} = ");
-        
+                sb.Append($"{i} = ");
+            else {
+                if (i > 0) {
+                    int iLen = (int) Math.Log10(Math.Abs(i - 1)) + 1;
+                    if (iLen < 1) iLen = 1;
+                    sb.Append($"{new string(' ', iLen)} > ");
+                } else sb.Append("> ");
+            }
+
             if (atomBools[i].Item1)
                 sb.Append('!');
             sb.Append($"{atoms[i][0]} {atoms[i][1]} ");

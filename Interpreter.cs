@@ -4,7 +4,6 @@ using static propcalc.Logic;
 namespace propcalc; 
 
 public class Interpreter {
-    private readonly Deque<bool> sysout = new();
     private readonly bool[] cache; // intermediates ... variables ...
     private readonly Statement[] statement;
     private readonly string[] varNames;
@@ -75,15 +74,57 @@ public class Interpreter {
         rawInput = (string) compilation.PopFirst();
     }
 
+    public void interpret(bool table, bool properties) {
+        if (table && properties)
+            interpretTableProps();
+        else if (table && !properties)
+            interpretTable();
+        else if (!table && properties)
+            interpretProps();
+    }
+    
+    private void interpretTable() {
+        Table table = new(rawInput, varCount, varNames);
+        int i = default, max = 1 << varCount;
 
-    public void interpret() {
-        for (int i = 0; i < Math.Pow(2, varCount); ++i) {
+        while (i < max) {
             executeStatements();
-            writeResultToOutput();
-            iterateVariables(i + 1);
+            table.writeOutputAndIncrement(cache[result], ++i);
+            iterateVariables(i);
         }
     }
     
+    private void interpretTableProps() {
+        Table table = new(rawInput, varCount, varNames);
+        int i = default, max = 1 << varCount;
+        
+        while (i < max) {
+            executeStatements();
+            table.writeOutputAndIncrement(cache[result], ++i);
+            iterateVariables(i);
+            
+            if (cache[result]) {
+                props[satisfiable] = true;
+                props[invalid] = false;
+            }   else props[valid] = false;
+        }
+    }
+    
+    private void interpretProps() {
+        int i = default, max = 1 << varCount;
+        
+        while (i < max) {
+            executeStatements();
+            iterateVariables(++i);
+            
+            if (cache[result]) {
+                props[satisfiable] = true;
+                props[invalid] = false;
+            }
+            else props[valid] = false;
+        }
+    }
+
     private void executeStatements() {
         for (int i = 0; i < stmtCount; ++i)
             cache[i] = executeAtom(statement[i]);
@@ -98,15 +139,6 @@ public class Interpreter {
         return gate[atom.binOperator](varLeft, varRight);
     }
 
-    private void writeResultToOutput() {
-        sysout.Append(cache[result]);
-        if (cache[result]) {
-            props[satisfiable] = true;
-            props[invalid] = false;
-        } 
-        else props[valid] = false;
-    }
-    
     private void iterateVariables(int n) {
         for (int i = 0; i < varCount; ++i)
             cache[i + stmtCount] =
@@ -115,17 +147,9 @@ public class Interpreter {
     
     public void properties() {
         Console.WriteLine(
-            "Valid: " + props[valid] +
-            "\nSatisfiable: " + props[satisfiable] +
-            "\nInvalid: " + props[invalid] + "\n");
-    }
-    
-    public void table() {
-        new Table(
-            rawInput,
-            varCount,
-            varNames,
-            sysout.GetIterator()
-            ).createTable();
+            $"\n{"Valid:", -12} {props[valid]}" +
+            $"\n{"Satisfiable:", -12} {props[satisfiable]}" +
+            $"\n{"Invalid:", -12} {props[invalid]}"
+        );
     }
 }
